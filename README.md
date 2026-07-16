@@ -112,6 +112,9 @@ docker compose up --build
 | Order Service | http://localhost:8082 |
 | RabbitMQ Management UI | http://localhost:15672 (guest / guest) |
 | PostgreSQL | localhost:5433 (admin / password) |
+| Grafana | http://localhost:3000 (admin / admin) |
+| Prometheus | http://localhost:9090 |
+| Loki | http://localhost:3100 |
 
 ---
 
@@ -151,6 +154,54 @@ GitHub Actions pipeline (`.github/workflows/ci.yml`) runs on every push and pull
 
 ---
 
+## Observability (PLG Stack)
+
+The stack ships with a fully provisioned observability setup based on **Prometheus**, **Loki**, and **Grafana**.
+
+### Components
+
+| Component | Role | Port |
+|---|---|---|
+| Prometheus | Scrapes `/actuator/prometheus` on all 4 backend services every 15 s | 9090 |
+| Loki | Aggregates container logs collected by Promtail | 3100 |
+| Promtail | Tails Docker container stdout/stderr and ships to Loki | — |
+| Grafana | Unified UI for metrics and logs — dashboards auto-provisioned on first start | 3000 |
+
+### Pre-built Grafana Dashboards
+
+Two dashboards are automatically loaded when Grafana starts:
+
+- **Spring Boot JVM Metrics** — HTTP throughput, p95 response times, JVM heap, CPU, thread count, HikariCP connection pool, and error rates, filterable per service.
+- **Trading Simulator Logs** — Log volume chart and live log stream from all containers via Loki, filterable by service name.
+
+### Adding custom metrics
+
+Use Micrometer's `MeterRegistry` directly in any service:
+
+```java
+@Service
+public class OrderService {
+
+    private final Counter ordersPlaced;
+
+    public OrderService(MeterRegistry registry) {
+        this.ordersPlaced = Counter.builder("trading.orders.placed")
+            .description("Total orders placed")
+            .tag("type", "buy")
+            .register(registry);
+    }
+
+    public void placeOrder(Order order) {
+        ordersPlaced.increment();
+        // ...
+    }
+}
+```
+
+The new metric appears in Prometheus and is immediately queryable in Grafana.
+
+---
+
 ## Project Structure
 
 ```
@@ -172,10 +223,19 @@ trading-simulator/
 │   │   └── services/           # auth, market, order, user services
 │   ├── Dockerfile
 │   └── nginx.conf
+├── observability/              # PLG stack configuration
+│   ├── prometheus/
+│   │   └── prometheus.yml      # Scrape targets for all services
+│   ├── promtail/
+│   │   └── promtail.yml        # Docker log collection config
+│   └── grafana/
+│       └── provisioning/
+│           ├── datasources/    # Auto-registers Prometheus + Loki
+│           └── dashboards/     # JVM metrics + log explorer dashboards
 ├── k8s/                        # Kubernetes manifests
 │   ├── deploy.ps1              # Ordered deployment script
 │   └── README.md               # K8s setup guide
-└── docker-compose.yml          # Full local stack
+└── docker-compose.yml          # Full local stack including PLG
 ```
 
 ---
