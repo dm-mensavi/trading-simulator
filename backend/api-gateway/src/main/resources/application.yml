@@ -1,0 +1,42 @@
+server:
+  port: 8000
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: false
+      routes:
+        - id: auth-service
+          uri: ${SERVICES_USER_SERVICE_URL:http://localhost:8080}
+          predicates:
+            - Path=/api/auth/**
+        - id: user-service
+          uri: ${SERVICES_USER_SERVICE_URL:http://localhost:8080}
+          predicates:
+            - Path=/api/users/**
+        - id: market-service
+          uri: ${SERVICES_MARKET_SERVICE_URL:http://localhost:8081}
+          predicates:
+            - Path=/api/market/**
+        - id: order-service
+          uri: ${SERVICES_ORDER_SERVICE_URL:http://localhost:8082}
+          predicates:
+            - Path=/api/orders/**
+
+logging:
+  level:
+    org.springframework.cloud.gateway: INFO
+    org.springframework.http.server.reactive: INFO

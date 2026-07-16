@@ -1,0 +1,114 @@
+<div class="portfolio fade-in">
+  <div class="page-header">
+    <h1>Portfolio</h1>
+    <p class="subtitle">Real-time overview of your cash balance, stock values, and profits/losses.</p>
+  </div>
+
+  <!-- Error State -->
+  <div class="error-banner" *ngIf="error">
+    <span>⚠</span> {{ error }}
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="loading && !error">
+    <div class="spinner"></div>
+    <p>Loading portfolio data...</p>
+  </div>
+
+  <div *ngIf="portfolio && !loading">
+
+    <!-- Balance Dashboard -->
+    <div class="dashboard-summary">
+      <div class="summary-hero-card">
+        <span class="summary-label">Total Portfolio Value</span>
+        <span class="summary-amount">{{ totalPortfolioValue | currency }}</span>
+        <div class="pnl-badge" [class.pnl-positive]="totalProfitLoss >= 0" [class.pnl-negative]="totalProfitLoss < 0">
+          <span class="pnl-icon">{{ totalProfitLoss >= 0 ? '▲' : '▼' }}</span>
+          <span>{{ totalProfitLoss | currency }} ({{ totalProfitLossPercent | number:'1.2-2' }}%)</span>
+        </div>
+      </div>
+      <div class="summary-sub-card">
+        <span class="summary-label">Available Cash</span>
+        <span class="sub-amount">{{ portfolio.cashBalance | currency }}</span>
+        <span class="sub-label">Ready for new trades</span>
+      </div>
+      <div class="summary-sub-card">
+        <span class="summary-label">Stock Value</span>
+        <span class="sub-amount">{{ (totalPortfolioValue - portfolio.cashBalance) | currency }}</span>
+        <span class="sub-label">Total cost basis: {{ totalCostBasis | currency }}</span>
+      </div>
+    </div>
+
+    <!-- Holdings Table -->
+    <div class="section-card">
+      <div class="section-header">
+        <h2>Stock Holdings</h2>
+        <span class="chip chip-blue">{{ holdingDetails.length }} positions</span>
+      </div>
+
+      <!-- Has Holdings -->
+      <div class="table-container" *ngIf="holdingDetails.length > 0">
+        <table class="holdings-table">
+          <thead>
+            <tr>
+              <th>Stock</th>
+              <th class="text-right">Shares</th>
+              <th class="text-right">Avg. Cost</th>
+              <th class="text-right">Live Price</th>
+              <th class="text-right">Market Value</th>
+              <th class="text-right">Profit / Loss</th>
+              <th class="text-center">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let h of holdingDetails" class="holding-row">
+              <td>
+                <div class="stock-info-cell">
+                  <div class="stock-logo-wrap">
+                    <img
+                      class="stock-logo"
+                      [src]="logoUrl(h.ticker)"
+                      [alt]="h.ticker"
+                      (error)="$any($event.target).style.display='none'; $any($event.target).nextElementSibling.style.display='flex'"
+                    />
+                    <div class="stock-logo-fallback" style="display:none">{{ tickerInitial(h.ticker) }}</div>
+                  </div>
+                  <div class="stock-meta">
+                    <span class="stock-ticker">{{ h.ticker }}</span>
+                  </div>
+                </div>
+              </td>
+              <td class="text-right font-medium">{{ h.quantity | number:'1.2-2' }}</td>
+              <td class="text-right font-mono">{{ h.averagePurchasePrice | currency }}</td>
+              <td class="text-right font-mono text-cyan">{{ h.currentPrice | currency }}</td>
+              <td class="text-right font-medium">{{ h.marketValue | currency }}</td>
+              <td class="text-right">
+                <span class="pnl-text" [class.text-green]="h.profitLoss >= 0" [class.text-red]="h.profitLoss < 0">
+                  {{ h.profitLoss >= 0 ? '+' : '' }}{{ h.profitLoss | currency }}
+                  <span class="pnl-percent">({{ h.profitLossPercent | number:'1.2-2' }}%)</span>
+                </span>
+              </td>
+              <td class="text-center">
+                <a
+                  class="btn-sell-action"
+                  [routerLink]="['/trade']"
+                  [queryParams]="{ ticker: h.ticker, action: 'sell' }"
+                >
+                  Sell
+                </a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- No Holdings -->
+      <div class="empty-state" *ngIf="holdingDetails.length === 0">
+        <span class="empty-icon">📊</span>
+        <p>No stock holdings yet.</p>
+        <a routerLink="/trade" class="btn-primary-link">Buy Your First Stock</a>
+      </div>
+    </div>
+
+  </div>
+</div>

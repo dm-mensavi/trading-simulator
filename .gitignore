@@ -1,0 +1,61 @@
+# ─── Java / Maven ────────────────────────────────────────
+target/
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+hs_err_pid*.log
+replay_pid*.log
+
+# Maven wrapper downloads
+.mvn/wrapper/maven-wrapper.jar
+
+# ─── Spring Boot ─────────────────────────────────────────
+spring-shell.log
+
+# ─── Node / Angular ──────────────────────────────────────
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/cache/
+frontend/.sass-cache/
+frontend/coverage/
+frontend/npm-debug.log
+frontend/yarn-error.log
+
+# ─── IDEs ────────────────────────────────────────────────
+.idea/
+*.iml
+*.ipr
+*.iws
+.project
+.classpath
+.settings/
+*.launch
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# ─── OS ──────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ─── Secrets / sensitive files ───────────────────────────
+*.env
+.env*
+!.env.example
+
+# ─── Docker ──────────────────────────────────────────────
+# (keep Dockerfiles, ignore generated layers)
+
+# ─── Misc ────────────────────────────────────────────────
+*.log
+*.tmp
+*.swp
+*.bak
+implementation_plan*
+walkthrough*
+java_project_roadmap

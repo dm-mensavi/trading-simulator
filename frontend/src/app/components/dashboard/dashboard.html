@@ -1,0 +1,75 @@
+<div class="dashboard fade-in">
+  <div class="page-header">
+    <h1>Dashboard</h1>
+    <p class="subtitle">Welcome back. Here is your trading overview.</p>
+  </div>
+
+  <!-- Error State -->
+  <div class="error-banner" *ngIf="error">
+    <span class="icon">⚠</span> {{ error }}
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="loading && !error">
+    <div class="spinner"></div>
+    <p>Loading portfolio data...</p>
+  </div>
+
+  <!-- Stat Cards -->
+  <div class="stats-grid" *ngIf="portfolio && !loading">
+    <div class="stat-card">
+      <div class="stat-icon blue">💰</div>
+      <div class="stat-info">
+        <span class="stat-label">Cash Balance</span>
+        <span class="stat-value">{{ portfolio.cashBalance | currency }}</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon green">📈</div>
+      <div class="stat-info">
+        <span class="stat-label">Holdings</span>
+        <span class="stat-value">{{ portfolio.holdings.length }} Stocks</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon gold">📋</div>
+      <div class="stat-info">
+        <span class="stat-label">Total Orders</span>
+        <span class="stat-value">{{ orders.length }}</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon purple">✅</div>
+      <div class="stat-info">
+        <span class="stat-label">Executed</span>
+        <span class="stat-value">{{ executedOrders }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Orders -->
+  <div class="section-card" *ngIf="orders.length > 0">
+    <div class="section-header">
+      <h2>Recent Orders</h2>
+      <a routerLink="/trade" class="btn-link">Place Order →</a>
+    </div>
+    <div class="orders-list">
+      <div class="order-row" *ngFor="let order of orders.slice(0, 5)">
+        <span class="chip" [class.chip-green]="order.orderType === 'BUY'" [class.chip-red]="order.orderType === 'SELL'">
+          {{ order.orderType }}
+        </span>
+        <span class="order-ticker">{{ order.ticker }}</span>
+        <span class="order-detail">{{ order.quantity }} shares</span>
+        <span class="order-detail">@ {{ order.pricePerShare | currency }}</span>
+        <span class="order-total">{{ order.totalCost | currency }}</span>
+        <span class="chip chip-blue">{{ order.status }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="portfolio && orders.length === 0 && !loading">
+    <span class="empty-icon">📭</span>
+    <p>No orders yet. <a routerLink="/trade">Place your first trade!</a></p>
+  </div>
+</div>

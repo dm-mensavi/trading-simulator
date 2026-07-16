@@ -1,0 +1,187 @@
+<div class="trade fade-in">
+  <div class="page-header">
+    <h1>Trade</h1>
+    <p class="subtitle">Browse top stocks or look up any ticker to place an order.</p>
+  </div>
+
+  <!-- ── Top Stocks Watchlist ──────────────────────────────── -->
+  <div class="section-card watchlist-card">
+    <div class="watchlist-header">
+      <h2>Top Stocks</h2>
+      <span class="watchlist-badge">Click to trade</span>
+    </div>
+    <p class="card-desc">High-performing S&amp;P 500 picks — click any card to fetch a live price and fill the order form.</p>
+
+    <div class="watchlist-grid">
+      <button
+        class="stock-card"
+        *ngFor="let stock of watchlist"
+        (click)="selectStock(stock)"
+        [class.stock-card--active]="orderTicker === stock.ticker"
+      >
+        <div class="stock-logo-wrap">
+          <img
+            class="stock-logo"
+            [src]="logoUrl(stock.ticker)"
+            [alt]="stock.ticker"
+            (error)="$any($event.target).style.display='none'; $any($event.target).nextElementSibling.style.display='flex'"
+          />
+          <div class="stock-logo-fallback" style="display:none">{{ tickerInitial(stock.ticker) }}</div>
+        </div>
+        <div class="stock-info">
+          <span class="stock-ticker">{{ stock.ticker }}</span>
+          <span class="stock-name">{{ stock.name }}</span>
+          <span class="stock-sector-chip">{{ stock.sector }}</span>
+        </div>
+      </button>
+    </div>
+  </div>
+
+  <div class="trade-layout">
+
+    <!-- Left: Price Lookup -->
+    <div class="section-card">
+      <h2>Market Price</h2>
+      <p class="card-desc">Fetch the live price for any ticker (cached 5 min).</p>
+
+      <div class="input-row">
+        <div class="input-wrap">
+          <span class="input-icon">🔍</span>
+          <input
+            id="tickerInput"
+            class="text-input"
+            [(ngModel)]="tickerQuery"
+            placeholder="e.g. IBM, AAPL"
+            (keyup.enter)="lookupPrice()"
+            maxlength="10"
+          />
+        </div>
+        <button class="btn-primary" (click)="lookupPrice()" [disabled]="priceLoading || !tickerQuery.trim()">
+          {{ priceLoading ? 'Loading...' : 'Fetch' }}
+        </button>
+      </div>
+
+      <div class="price-error" *ngIf="priceError">⚠ {{ priceError }}</div>
+
+      <!-- Price Card -->
+      <div class="price-card" *ngIf="currentPrice">
+        <div class="price-card-header">
+          <span class="price-ticker">{{ currentPrice.ticker }}</span>
+          <span class="price-date">{{ currentPrice.timestamp | date:'medium' }}</span>
+        </div>
+        <div class="price-main">{{ currentPrice.price | currency }}</div>
+        <div class="price-ohlc">
+          <div class="ohlc-item">
+            <span class="ohlc-label">Open</span>
+            <span>{{ currentPrice.open | currency }}</span>
+          </div>
+          <div class="ohlc-item">
+            <span class="ohlc-label">High</span>
+            <span class="text-green">{{ currentPrice.high | currency }}</span>
+          </div>
+          <div class="ohlc-item">
+            <span class="ohlc-label">Low</span>
+            <span class="text-red">{{ currentPrice.low | currency }}</span>
+          </div>
+          <div class="ohlc-item">
+            <span class="ohlc-label">Prev Close</span>
+            <span>{{ currentPrice.previousClose | currency }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Place Order (Tabbed) -->
+    <div class="section-card order-panel-card">
+      <div class="tabs-container">
+        <button class="tab-btn" [class.tab-btn--active-buy]="isBuy" (click)="setTab(true)">BUY</button>
+        <button class="tab-btn" [class.tab-btn--active-sell]="!isBuy" (click)="setTab(false)">SELL</button>
+      </div>
+
+      <h2 class="panel-title">{{ isBuy ? 'Place Buy Order' : 'Place Sell Order' }}</h2>
+      <p class="card-desc">{{ isBuy ? 'Enter a ticker and quantity to execute immediately.' : 'Sell stock holdings and credit your cash balance.' }}</p>
+
+      <div class="form-group">
+        <label for="orderTickerInput">Ticker Symbol</label>
+        <div class="input-wrap">
+          <span class="input-icon">🏷️</span>
+          <input
+            id="orderTickerInput"
+            class="text-input"
+            [(ngModel)]="orderTicker"
+            placeholder="e.g. IBM"
+            maxlength="10"
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="orderQtyInput">Quantity (shares)</label>
+        <div class="input-wrap">
+          <span class="input-icon">🔢</span>
+          <input
+            id="orderQtyInput"
+            class="text-input"
+            [(ngModel)]="orderQty"
+            type="number"
+            min="1"
+            placeholder="e.g. 10"
+          />
+        </div>
+      </div>
+
+      <div class="order-summary" [class.order-summary-sell]="!isBuy" *ngIf="currentPrice && orderTicker && orderQty">
+        <div class="summary-row">
+          <span>{{ isBuy ? 'Estimated Cost' : 'Estimated Proceeds' }}</span>
+          <span [class.text-green]="isBuy" [class.text-red]="!isBuy">{{ estimatedCostOrProceeds | currency }}</span>
+        </div>
+      </div>
+
+      <!-- Buy Button -->
+      <button
+        id="placeBuyBtn"
+        *ngIf="isBuy"
+        class="btn-buy"
+        (click)="executeOrder()"
+        [disabled]="orderLoading || !orderTicker || !orderQty || orderQty < 1"
+      >
+        <span *ngIf="!orderLoading">🛒 Buy {{ orderQty }} {{ orderTicker | uppercase }}</span>
+        <span *ngIf="orderLoading" class="pulsing">Executing order...</span>
+      </button>
+
+      <!-- Sell Button -->
+      <button
+        id="placeSellBtn"
+        *ngIf="!isBuy"
+        class="btn-sell"
+        (click)="executeOrder()"
+        [disabled]="orderLoading || !orderTicker || !orderQty || orderQty < 1"
+      >
+        <span *ngIf="!orderLoading">🤝 Sell {{ orderQty }} {{ orderTicker | uppercase }}</span>
+        <span *ngIf="orderLoading" class="pulsing">Executing order...</span>
+      </button>
+
+      <div class="success-banner" *ngIf="successMsg">{{ successMsg }}</div>
+      <div class="error-banner"   *ngIf="orderError">⚠ {{ orderError }}</div>
+    </div>
+
+  </div>
+
+  <!-- Order History -->
+  <div class="section-card" *ngIf="orders.length > 0">
+    <h2>Order History</h2>
+    <div class="history-list">
+      <div class="history-row" *ngFor="let o of orders">
+        <span class="chip" [class.chip-green]="o.orderType === 'BUY'" [class.chip-red]="o.orderType === 'SELL'">
+          {{ o.orderType }}
+        </span>
+        <strong class="history-ticker">{{ o.ticker }}</strong>
+        <span class="text-muted">{{ o.quantity }} shares</span>
+        <span class="text-muted">@ {{ o.pricePerShare | currency }}</span>
+        <span class="history-total">{{ o.totalCost | currency }}</span>
+        <span class="chip chip-blue">{{ o.status }}</span>
+      </div>
+    </div>
+  </div>
+
+</div>
