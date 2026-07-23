@@ -15,8 +15,8 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: trading-simulator-frontend:latest
-          imagePullPolicy: IfNotPresent
+          image: ghcr.io/dm-mensavi/trading-simulator-frontend:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 80
           readinessProbe:

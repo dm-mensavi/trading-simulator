@@ -15,8 +15,8 @@ spec:
     spec:
       containers:
         - name: order-service
-          image: trading-simulator-order-service:latest
-          imagePullPolicy: IfNotPresent
+          image: ghcr.io/dm-mensavi/trading-simulator-order-service:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 8082
           envFrom:

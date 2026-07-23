@@ -15,10 +15,10 @@ spec:
     spec:
       containers:
         - name: user-service
-          image: trading-simulator-user-service:latest
+          image: ghcr.io/dm-mensavi/trading-simulator-user-service:latest
           # Use IfNotPresent for local images (Docker Desktop / minikube)
           # Change to Always when pushing to a registry (GCR, ECR, ACR)
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
           envFrom:
