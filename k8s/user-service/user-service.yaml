@@ -40,17 +40,24 @@ spec:
                 secretKeyRef:
                   name: trading-secrets
                   key: JWT_SECRET
-          readinessProbe:
-            tcpSocket:
+          startupProbe:
+            httpGet:
+              path: /actuator/health/liveness
               port: 8080
-            initialDelaySeconds: 30
+            failureThreshold: 30
             periodSeconds: 10
-            failureThreshold: 10
-          livenessProbe:
-            tcpSocket:
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
               port: 8080
-            initialDelaySeconds: 60
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
             periodSeconds: 15
+            failureThreshold: 3
           resources:
             requests:
               memory: "256Mi"

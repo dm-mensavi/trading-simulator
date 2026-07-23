@@ -24,3 +24,7 @@ data:
 
   # ── JWT ──────────────────────────────────────────────────────────
   JWT_EXPIRATION_MS: "86400000"
+
+  # ── Observability Probes ─────────────────────────────────────────
+  MANAGEMENT_ENDPOINT_HEALTH_PROBES_ENABLED: "true"
+
