@@ -18,6 +18,23 @@ A full-stack, cloud-native paper-trading platform built with a microservices arc
 
 ---
 
+## Screenshots
+
+### Dashboard Overview
+![Dashboard Overview](./docs/screenshots/Dashboard-screen.png)
+
+### Trading Interface
+| Trade Execution | Top Stocks |
+|---|---|
+| ![Trade Execution](./docs/screenshots/Trade-execution-screen.png) | ![Top Stocks](./docs/screenshots/Trade-topStocks-screen.png) |
+
+### Portfolio & Profile
+| Portfolio Holdings & P&L | User Profile & Security |
+|---|---|
+| ![Portfolio Screen](./docs/screenshots/Portfolio-screen.png) | ![Profile Screen](./docs/screenshots/Profile-screen.png) |
+
+---
+
 ## Architecture
 
 ```
@@ -214,6 +231,8 @@ trading-simulator/
 │   ├── market-service/         # Market data + Redis caching
 │   ├── order-service/          # Order matching + RabbitMQ
 │   └── user-service/           # Auth + portfolio (JWT, JPA)
+├── docs/
+│   └── screenshots/            # UI screenshots (Dashboard, Trade, Portfolio, Profile)
 ├── frontend/                   # Angular 21 SPA
 │   ├── src/app/
 │   │   ├── components/         # dashboard, trade, portfolio, profile, login, register
