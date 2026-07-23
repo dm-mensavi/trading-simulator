@@ -1,4 +1,4 @@
-{
+﻿{
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "version": 1,
   "cli": {
@@ -21,11 +21,16 @@
             "tsConfig": "tsconfig.app.json",
             "polyfills": ["zone.js"],
             "assets": [
-              {
-                "glob": "**/*",
-                "input": "public"
-              }
-            ],
+                {
+                  "glob": "**/*",
+                  "input": "public"
+                },
+                {
+                  "glob": "favicon.png",
+                  "input": "src",
+                  "output": "/"
+                }
+              ],
             "styles": ["src/styles.css"]
           },
           "configurations": {
@@ -78,3 +83,4 @@
     }
   }
 }
+

@@ -33,6 +33,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/users/*/balance").permitAll()
                 .requestMatchers("/api/users/*/portfolio/buy").permitAll()
                 .requestMatchers("/api/users/*/order-status").permitAll()
+                // Observability: allow Prometheus scraping and health probes without JWT
+                .requestMatchers("/actuator/**").permitAll()
                 // All other endpoints require a valid JWT
                 .anyRequest().authenticated()
             )
